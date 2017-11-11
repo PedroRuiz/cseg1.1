@@ -14,6 +14,6 @@ VERSION 1.0 CHANGE LOG
  
 
 
-for more details README.md of Cseg1.0
+for more details https://github.com/PedroRuiz/cseg1.0/blob/master/README.md of Cseg1.0
 
 
