@@ -14,6 +14,8 @@
 : 1.0   - 2017/11/01 - Initial issue
 : 1.1	- 2017/11/10 - to_tail
 : 1.1	- 2017/11/10 - history
+: 1.1	- 2017/11/13 - Add H M S to both, full and incremental, file names.
+: 1.1	- 2017/11/15 - It checks if exists fullbackup in incremental proeccess.
 #
 
 #  CONTSTANTS
@@ -216,17 +218,22 @@ case $1 in
 		fi
 		target "$TARGET/$FOLDER"
 		to_tail "Copia Full"
-		tar -cpvzf "$TARGET/$FOLDER/$FULLPREFIX`date +%Y%m%d`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
-		to_tail "Termina full"
+		tar -cpvzf "$TARGET/$FOLDER/$FULLPREFIX`date +%Y%m%d%H%M%S`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
+		to_tail "Termina Full"
 		echo -e "Terminado a las $BOLD`date +%H:%M:%S`$NC"
 		;;
 	
 	incremental)
+		if [ ! -f "$TARGET/$FOLDER/$FULLPREFIX*" ];
+		then
+			echo "no existe el $BOLD archivo fullbackup$NC"
+			exit $EXIT_BAD
+		fi
 		title
 		echo -e "Creando incremental $BOLD`date +%H:%M:%S`$NC"
 		target "$TARGET/$FOLDER"
 		to_tail "Incremental"
-		tar -cpvzf "$TARGET/$FOLDER/$INCPREFIX`date +%Y%m%d`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
+		tar -cpvzf "$TARGET/$FOLDER/$INCPREFIX`date +%Y%m%d%H%M%S`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
 		to_tail "Termina incremental"
 		echo -e "Terminado a las $BOLD`date +%H:%M:%S`$NC"
 		;;
