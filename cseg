@@ -15,16 +15,15 @@
 : 1.1	- 2017/11/10 - to_tail
 : 1.1	- 2017/11/10 - history
 : 1.1	- 2017/11/13 - Add H M S to both, full and incremental, file names.
-: 1.1	- 2017/11/15 - It checks if exists fullbackup in incremental proeccess.
 #
 
 #  CONTSTANTS
 EXIT_OK=0
 EXIT_BAD=66
 
-BOLD="\033[1m"
-NC="\033[0m"
-RED="\033[31m"
+BOLD="\\033[1m"
+NC="\\033[0m"
+RED="\\033[31m"
 
 #  DEFINED VARIABLES
 
@@ -79,11 +78,11 @@ INCSEARCHPREFIX="$INCPREFIX*"
 : for copyrights reasons
 : DO NOT TOUCH IT AT ALL
 #
-if [ "`date +%Y`" = "2017" ];
+if [ "$(date +%Y)" = "2017" ];
 	then
 		COPYRDATE="* $BOLD LICENSE MIT  2017  $NC Pedro Ruiz Hidalgo   *"
 	else 
-		COPYRDATE="*$BOLD LICENSE MIT 2017-`date +%Y`    $NCPedro Ruiz Hidalgo    *"
+		COPYRDATE="*$BOLD LICENSE MIT 2017-$(date +%Y)   $NC Pedro Ruiz Hidalgo    *"
 fi
 
 #  FUNCTIONS 
@@ -123,7 +122,7 @@ title() {
 	}
 
 base() {
-	if [ ! -d $1 ];
+	if [ ! -d "$1" ];
 		then
 			echo -e "$BOLD $1 $NC es el directorio programado como fuente $BOLD no existe $NC"
 			exit $EXIT_BAD
@@ -135,7 +134,7 @@ base() {
 target() {
 	if [ ! -d "$1" ];
 		then
-			mkdir $1
+			mkdir "$1"
 			echo -e "$BOLD$1$NC es el directorio programado como objetivo $BOLD ha sido creado$NC"
 			exit $EXIT_BAD
 		else
@@ -155,21 +154,21 @@ help() {
 
 restore_main_file() {
 	title 
-	read -p "introduce la fecha del archivo $TARGET/$FOLDER/$FULLPREFIX"
+	read -p "introduce la fecha del archivo $TARGET/$FOLDER/$FULLPREFIX" -r
 	fullbackup="$TARGET/$FOLDER/$FULLPREFIX$REPLY.tgz"
 	echo
 	echo -e "Restaurando $fullbackup.$BOLD Este proceso es lento$NC."
-	echo -e "Iniciado a las $BOLD`date +%H:%M:%S`$NC"
+	echo -e "Iniciado a las $BOLD$(date +%H:%M:%S)$NC"
 	to_tail "fullbackup"
 	tar -xzf "$fullbackup" -C "$BASE" 1> /dev/null 2>>"$ERRLOG"
-	echo -e "Terminado restore del fullbackup a las  $BOLD`date +%H:%M:%S`$NC"
+	echo -e "Terminado restore del fullbackup a las  $BOLD$(date +%H:%M:%S)$NC"
 	to_tail "Terminado fullbackup"
 	echo
 }
 
 to_tail() {
 	
-	time=">>> $1 <<< `date +'%x %r'`"
+	time=">>> $1 <<< $(date +'%x %r')"
 	echo "$time" >> $ERRLOG
 }
 
@@ -178,7 +177,7 @@ restore_inc_files() {
 	echo -e "Se inician el restore de todos los$BOLD ficheros incrementales$NC"
 
 	for file in $($INC_FILES); do
-		echo -e "restaurando $file a las $BOLD`date +%H:%M:%S`$NC" " en $BASE"
+		echo -e "restaurando $file a las $BOLD$(date +%H:%M:%S)$NC" " en $BASE"
 		to_tail "restaurando $file $BASE"
 		tar --incremental -zxf "$file"
 	done
@@ -211,31 +210,26 @@ case $1 in
 	
 	full)
 		title
-		echo -e "Creando full $BOLD`date +%H:%M:%S`$NC"
+		echo -e "Creando full $BOLD$(date +%H:%M:%S)$NC"
 		if [ ! -d "$TARGET/$FOLDER" ];
 		then
 			mkdir "$TARGET/$FOLDER"
 		fi
 		target "$TARGET/$FOLDER"
 		to_tail "Copia Full"
-		tar -cpvzf "$TARGET/$FOLDER/$FULLPREFIX`date +%Y%m%d%H%M%S`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
+		tar -cpvzf "$TARGET/$FOLDER/$FULLPREFIX$(date +%Y%m%d%H%M%S).tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
 		to_tail "Termina Full"
-		echo -e "Terminado a las $BOLD`date +%H:%M:%S`$NC"
+		echo -e "Terminado a las $BOLD$(date +%H:%M:%S)$NC"
 		;;
 	
 	incremental)
-		if [ ! -f "$TARGET/$FOLDER/$FULLPREFIX*" ];
-		then
-			echo "no existe el $BOLD archivo fullbackup$NC"
-			exit $EXIT_BAD
-		fi
 		title
-		echo -e "Creando incremental $BOLD`date +%H:%M:%S`$NC"
+		echo -e "Creando incremental $BOLD$(date +%H:%M:%S)$NC"
 		target "$TARGET/$FOLDER"
 		to_tail "Incremental"
-		tar -cpvzf "$TARGET/$FOLDER/$INCPREFIX`date +%Y%m%d%H%M%S`.tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
+		tar -cpvzf "$TARGET/$FOLDER/$INCPREFIX$(date +%Y%m%d%H%M%S).tgz" -g "$SNAPFILE" "$BASE" 1> /dev/null 2>>"$ERRLOG"
 		to_tail "Termina incremental"
-		echo -e "Terminado a las $BOLD`date +%H:%M:%S`$NC"
+		echo -e "Terminado a las $BOLD$(date +%H:%M:%S)$NC"
 		;;
 	
 	restore)
